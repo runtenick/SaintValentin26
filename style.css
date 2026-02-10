@@ -239,9 +239,60 @@ h3 {
   right: 6px;
 }
 
+.corner-gif-fairy {
+  top: 10px;
+  right: 6px;
+}
+
 .corner-gif-time {
   top: 10px;
   right: 8px;
+}
+
+.corner-cue {
+  position: absolute;
+  top: 56%;
+  left: 52%;
+  width: 18px;
+  height: 24px;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 6;
+}
+
+.corner-cue::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(0 0, 0 100%, 36% 72%, 56% 100%, 70% 90%, 50% 62%, 100% 62%);
+  background: #ffffff;
+  border: 2px solid #3f85cf;
+  border-radius: 2px;
+  box-shadow: 0 4px 8px rgba(25, 79, 127, 0.25);
+}
+
+.card.is-corner-cue-active .corner-cue {
+  animation: corner-cursor-travel 1250ms ease-out forwards;
+}
+
+@keyframes corner-cursor-travel {
+  0% {
+    opacity: 0;
+    top: 56%;
+    left: 52%;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  18% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    top: 14px;
+    left: calc(100% - 22px);
+    transform: translate(-50%, -50%) scale(0.98);
+  }
 }
 
 .refuse-taunt {

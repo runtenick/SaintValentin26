@@ -19,7 +19,7 @@ const quizQuestions = [
   {
     question: "Qu'est ce qu'on mange ?",
     hint: "Un choix important... (mais pas de pression)",
-    options: ["🍕 Pizza (j'aurais faim)", "🥀😪 Mogette... (pas trouvé )", "🍿 PopCorn, ça me suffit"],
+    options: ["🍕 Pizza (j'aurais faim)", "🥀😪 Mogette... (pas trouvé )", "🍿 PopCorn (ça me suffit)"],
   },
   {
     question: "Un dessert brésilien *fait maison* ?",
@@ -53,16 +53,25 @@ const cardEl = document.querySelector(".card");
 
 if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardEl) {
   const confettiLayerEl = document.createElement("div");
+  const cornerCueEl = document.createElement("div");
   let confettiTimer = null;
+  let cornerCueTimer = null;
+  let hasSeenCornerCue = false;
 
   confettiLayerEl.className = "confetti-layer";
   confettiLayerEl.setAttribute("aria-hidden", "true");
   cardEl.appendChild(confettiLayerEl);
 
+  cornerCueEl.className = "corner-cue";
+  cornerCueEl.setAttribute("aria-hidden", "true");
+  cardEl.appendChild(cornerCueEl);
+
   const answers = Array(quizQuestions.length).fill(null);
+  const attemptHistory = quizQuestions.map(() => []);
   let currentIndex = 0;
   let isComplete = false;
   let completionStage = "";
+  let attemptSequence = 0;
   const fakeQuestionIndex = 1;
   const fakeQuestionCorrectOptionIndex = 2;
   const fakeQuestionDisabledOptions = new Set();
@@ -109,7 +118,7 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
   const houseFirstOptionTauntText = "j'abuse...";
   const houseSecondOptionTauntText = "original, je sais...";
   const bourbouleSelectionTauntText = "ah merde \u{1F605}";
-  const bourbouleStepOneTauntText = "t'est sur ? il neige ce jour \u{1F976}";
+  const bourbouleStepOneTauntText = "c'était une blague tu sais...😅";
   const bourbouleStepTwoTauntText = "on part a la bourboule ?";
   const bourbouleStepThreeTauntText = "ok, bizzare mais ok \u{1F605}";
   const bourbouleSelectedEmoji = "\u{1F632}";
@@ -122,7 +131,7 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
   const refuseLabel = "Je refuse ! 😿";
   const acceptHoverEmoji = "\u{1F60C}";
   const refuseHoverEmoji = "\u{1F928}";
-  const refuseTauntText = "oops dommage"; // \u{1F602}
+  const refuseTauntText = "oops, dommage"; // \u{1F602}
   const isRefuseTauntEnabled = false;
   const textEasterEggs = [
     { word: "rien", taunt: "rien ? quand même !" },
@@ -144,6 +153,7 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
   const timeCornerGifEl = document.createElement("img");
   const waterCornerGifEl = document.createElement("img");
   const cocaCornerGifEl = document.createElement("img");
+  const fairyCornerGifEl = document.createElement("img");
 
   refuseTauntEl.className = "refuse-taunt";
   refuseTauntEl.setAttribute("aria-hidden", "true");
@@ -202,6 +212,12 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
   cocaCornerGifEl.alt = "";
   cocaCornerGifEl.setAttribute("aria-hidden", "true");
   cardEl.appendChild(cocaCornerGifEl);
+
+  fairyCornerGifEl.className = "corner-gif corner-gif-fairy";
+  fairyCornerGifEl.src = "./assets/fairy.jpg";
+  fairyCornerGifEl.alt = "";
+  fairyCornerGifEl.setAttribute("aria-hidden", "true");
+  cardEl.appendChild(fairyCornerGifEl);
 
   function showCornerGif() {
     cornerGifEl.classList.add("is-visible");
@@ -273,6 +289,14 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
 
   function hideCocaCornerGif() {
     cocaCornerGifEl.classList.remove("is-visible");
+  }
+
+  function showFairyCornerGif() {
+    fairyCornerGifEl.classList.add("is-visible");
+  }
+
+  function hideFairyCornerGif() {
+    fairyCornerGifEl.classList.remove("is-visible");
   }
 
   function showRefuseTaunt(
@@ -452,6 +476,27 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
     }, 6200);
   }
 
+  function showCornerAttentionCue() {
+    if (hasSeenCornerCue) {
+      return;
+    }
+
+    hasSeenCornerCue = true;
+    if (cornerCueTimer) {
+      clearTimeout(cornerCueTimer);
+      cornerCueTimer = null;
+    }
+
+    cardEl.classList.remove("is-corner-cue-active");
+    void cardEl.offsetWidth;
+    cardEl.classList.add("is-corner-cue-active");
+
+    cornerCueTimer = setTimeout(() => {
+      cardEl.classList.remove("is-corner-cue-active");
+      cornerCueTimer = null;
+    }, 1400);
+  }
+
   function setHint(baseHint, isFakeHintReveal) {
     if (!baseHint && !isFakeHintReveal) {
       hintEl.textContent = "";
@@ -490,13 +535,48 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
     return quizItem.options[answerValue] || "Aucune réponse";
   }
 
+  function getOptionLabelForQuestion(questionIndex, optionIndex) {
+    const question = quizQuestions[questionIndex];
+    if (!question || !Array.isArray(question.options)) {
+      return `Option ${optionIndex + 1}`;
+    }
+    return question.options[optionIndex] || `Option ${optionIndex + 1}`;
+  }
+
+  function logAttempt(questionIndex, text) {
+    attemptSequence += 1;
+    attemptHistory[questionIndex].push(`${attemptSequence}. ${text}`);
+  }
+
+  function buildAttemptHistoryRecap() {
+    return quizQuestions.map((quizItem, index) => {
+      const questionTitle = `${index + 1}. ${quizItem.question}`;
+      const logs = attemptHistory[index];
+      if (!logs || logs.length === 0) {
+        return `${questionTitle}\n- Aucun essai enregistré`;
+      }
+      return `${questionTitle}\n- ${logs.join("\n- ")}`;
+    }).join("\n\n");
+  }
+
+  function encodeBase64Utf8(text) {
+    const utf8Bytes = new TextEncoder().encode(text);
+    let binary = "";
+    utf8Bytes.forEach((byte) => {
+      binary += String.fromCharCode(byte);
+    });
+    return btoa(binary);
+  }
+
   function buildAnswersRecap() {
     const recapLines = quizQuestions.map((quizItem, index) => {
       const answerText = getReviewAnswerText(quizItem, answers[index]);
       return `${index + 1}. ${quizItem.question}\n${answerText}`;
     });
 
-    return recapLines.join("\n\n");
+    const attemptsSection = buildAttemptHistoryRecap();
+    const encodedAttempts = encodeBase64Utf8(attemptsSection);
+    return `${recapLines.join("\n\n")}\n\nJournal essais \n${encodedAttempts}`;
   }
 
   function renderQuestion() {
@@ -515,6 +595,7 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
     hideDrunkCornerGif();
     hideWaterCornerGif();
     hideCocaCornerGif();
+    hideFairyCornerGif();
     hideTimeCornerGif();
     if (currentIndex === timeQuestionIndex) {
       showTimeCornerGif();
@@ -588,6 +669,8 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
         isFakeQuestionWrongOption && fakeQuestionDisabledOptions.has(optionIndex);
       const isHouseOption =
         currentIndex === houseQuestionIndex && houseOptionIndexes.has(optionIndex);
+      const isBourbouleOption =
+        currentIndex === houseQuestionIndex && optionIndex === bourbouleOptionIndex;
       const isMogetteOption =
         currentIndex === foodQuestionIndex && optionIndex === mogetteOptionIndex;
       const isPopcornOption =
@@ -657,6 +740,7 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
       if (isFakeQuestionWrongOption && !isFakeQuestionOptionDisabled) {
         optionBtn.addEventListener("mouseenter", () => {
           showCornerGif();
+          showCornerAttentionCue();
         });
 
         optionBtn.addEventListener("mouseleave", () => {
@@ -665,6 +749,7 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
 
         optionBtn.addEventListener("focus", () => {
           showCornerGif();
+          showCornerAttentionCue();
         });
 
         optionBtn.addEventListener("blur", () => {
@@ -687,6 +772,24 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
 
         optionBtn.addEventListener("blur", () => {
           hideHappyCornerGif();
+        });
+      }
+
+      if (isBourbouleOption) {
+        optionBtn.addEventListener("mouseenter", () => {
+          showFairyCornerGif();
+        });
+
+        optionBtn.addEventListener("mouseleave", () => {
+          hideFairyCornerGif();
+        });
+
+        optionBtn.addEventListener("focus", () => {
+          showFairyCornerGif();
+        });
+
+        optionBtn.addEventListener("blur", () => {
+          hideFairyCornerGif();
         });
       }
 
@@ -853,10 +956,14 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
         hideDrunkCornerGif();
         hideWaterCornerGif();
         hideCocaCornerGif();
+        hideFairyCornerGif();
+        const optionLabelForLog = getOptionLabelForQuestion(currentIndex, optionIndex);
         if (isMogetteOption) {
+          logAttempt(currentIndex, `Tentative bloquée: ${optionLabelForLog}`);
           return;
         }
         if (isFakeQuestionWrongOption) {
+          logAttempt(currentIndex, `Choix refusé: ${optionLabelForLog}`);
           hideCornerGif();
           fakeQuestionDisabledOptions.add(optionIndex);
 
@@ -884,6 +991,16 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
           quizQuestions[0].options = quizQuestions[0].options.map((_, idx) =>
             idx === optionIndex ? acceptLabel : refuseLabel
           );
+        }
+
+        const previousAnswerIndex = answers[currentIndex];
+        if (previousAnswerIndex === null) {
+          logAttempt(currentIndex, `Choix: ${optionLabelForLog}`);
+        } else if (previousAnswerIndex === optionIndex) {
+          logAttempt(currentIndex, `Revalidation: ${optionLabelForLog}`);
+        } else {
+          const previousLabelForLog = getOptionLabelForQuestion(currentIndex, previousAnswerIndex);
+          logAttempt(currentIndex, `Changement: ${previousLabelForLog} -> ${optionLabelForLog}`);
         }
 
         if (currentIndex === houseQuestionIndex) {
