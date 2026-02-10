@@ -27,6 +27,7 @@ html, body {
 }
 
 .card{
+  --card-scale: 1.12;
   width: min(560px, 100%);
   padding: clamp(18px, 4vw, 30px);
   border-radius: 20px;
@@ -36,10 +37,13 @@ html, body {
     0 18px 40px rgba(21, 64, 110, 0.22),
     0 2px 0 rgba(255, 255, 255, 0.85) inset;
   backdrop-filter: blur(4px);
+  transform: scale(var(--card-scale));
+  transform-origin: center;
 }
 
 @media (min-width: 1024px) {
   .card {
+    --card-scale: 1.2;
     width: min(740px, 100%);
     padding: 34px 38px;
   }
