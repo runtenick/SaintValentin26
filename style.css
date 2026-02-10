@@ -1,7 +1,14 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 body {
-  background-image: url("assets/bg-tile-neutral@2x.webp");
+  background-image: url("assets/bg-tile-neutral.svg");
   background-repeat: repeat;
-  background-size: clamp(360px, 32vw, 520px);
+  background-size: clamp(420px, 32vw, 600px);
+  overflow: hidden;
 } 
 
 html, body {
@@ -10,14 +17,14 @@ html, body {
 }
 
 .page{
-  min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   place-items: center;
   padding: clamp(16px, 4vw, 32px);
 }
 
 .card{
-  width: min(560px, 92vw);
+  width: min(560px, 100%);
   padding: clamp(16px, 4vw, 28px);
   border-radius: 18px;
   background: rgba(255,255,255,0.92);
@@ -41,6 +48,7 @@ html, body {
   padding: clamp(12px, 3vw, 16px);
   font-size: clamp(15px, 1.8vw, 17px);
   border-radius: 14px;
+  border-color: aliceblue;
 }
 
 
