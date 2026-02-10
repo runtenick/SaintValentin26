@@ -119,6 +119,26 @@ h3 {
   transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
 }
 
+.text-answer {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px 14px;
+  font-size: 16px;
+  line-height: 1.4;
+  border-radius: 14px;
+  border: 1.5px solid #c9defa;
+  background: #ffffff;
+  color: #1f2a44;
+  font-family: "Mulish", sans-serif;
+  resize: vertical;
+}
+
+.text-answer:focus {
+  outline: none;
+  border-color: #8bc0f0;
+  box-shadow: 0 0 0 3px rgba(139, 192, 240, 0.2);
+}
+
 
 .option:hover {
   transform: translateY(-1px);
@@ -174,14 +194,24 @@ h3 {
   right: 6px;
 }
 
-.corner-gif-fat {
+.corner-gif-drunk {
   top: 10px;
   right: 6px;
 }
 
-.corner-gif-drunk {
+.corner-gif-water {
   top: 10px;
   right: 6px;
+}
+
+.corner-gif-coca {
+  top: 10px;
+  right: 6px;
+}
+
+.corner-gif-time {
+  top: 10px;
+  right: 8px;
 }
 
 .refuse-taunt {
@@ -243,6 +273,50 @@ h3 {
   margin: 0;
   color: #325377;
   font-weight: 700;
+}
+
+.bg-share-intro {
+  margin: 0 0 12px;
+  color: #2f4f73;
+  font-weight: 700;
+}
+
+.bg-download-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr;
+}
+
+.bg-download-card {
+  border: 1px solid #d6e7fb;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.bg-preview {
+  height: 110px;
+  border-radius: 10px;
+  border: 1px solid #d6e7fb;
+  margin-bottom: 10px;
+  background-repeat: repeat;
+  background-position: center;
+  background-size: 220px auto;
+}
+
+.bg-preview-pink {
+  background-image: url("./assets/bg-pink-neutral.svg");
+}
+
+.bg-preview-blue {
+  background-image: url("./assets/bg-blue-neutral.svg");
+}
+
+.bg-download-btn {
+  display: inline-flex;
+  justify-content: center;
+  width: 100%;
+  text-decoration: none;
 }
 
 .actions {

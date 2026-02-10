@@ -24,7 +24,7 @@ const quizQuestions = [
   {
     question: "Un dessert brésilien *fait maison* ?",
     hint: "👀...🍫...",
-    options: ["Oui! Pour l'amour de dieu", "Non, j'ai perdu mes neurones..."],
+    options: ["Oui! Pour l'amour de dieu 🙏", "Non, j'ai perdu mes neurones..."],
   },
   {
     question: "Boisson ?",
@@ -34,7 +34,12 @@ const quizQuestions = [
   {
     question: "Heure d'arrivée ?",
     hint: "🕰️",
-    options: ["18h", "19h", "20h", "21h"],
+    options: ["18h", "19h", "20h"],
+  },
+  {
+    question: "Facultatif: tu pensais a quoi l'autre jour ? \u{1F440}",
+    type: "text",
+    placeholder: "Zone de la verité... \u{1F62C}",
   }
 ];
 
@@ -50,6 +55,7 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
   const answers = Array(quizQuestions.length).fill(null);
   let currentIndex = 0;
   let isComplete = false;
+  let completionStage = "";
   const fakeQuestionIndex = 1;
   const fakeQuestionCorrectOptionIndex = 2;
   const fakeQuestionDisabledOptions = new Set();
@@ -67,15 +73,16 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
   const waterOptionIndex = 0;
   const cocaOptionIndex = 1;
   const alcoholOptionIndex = 2;
+  const timeQuestionIndex = 6;
   const pizzaTauntText = "😮";
-  const popcornTauntText = "sal\u00E9e cette fois \u{1F924}";
+  const popcornTauntText = "sal\u00E9e cette fois 😅";
   const pizzaHoverHintText = "elle veut de la vrai bouffe \u{1F631} !!";
   const dessertAcceptEmoji = "\u{1F929}";
   const dessertRefuseEmoji = "\u{1F611}";
   const dessertRefuseTeaseOneText = "vraiment ?";
   const dessertRefuseTeaseTwoText = "tu refuse ??";
   const dessertRefuseTeaseThreeText = "\u{1F62D}\u{1F62D}\u{1F62D}\u{1F62D}";
-  const dessertAcceptTauntText = "tu ne sera pas déçu !";
+  const dessertAcceptTauntText = "tu ne sera pas déçue !";
   const dessertRefuseStepOneEmoji = "\u{1F632}";
   const dessertRefuseStepTwoEmoji = "\u{1F620}";
   const waterHoverEmoji = "\u{1F632}";
@@ -86,6 +93,10 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
   const waterTeaseThreeText = "?????";
   const waterTeaseFinalText = "\u{1F632}\u{1F632}\u{1F632}\u{1F632}";
   const cocaTauntText = "surprenant dit donc";
+  const alcoholTauntText = "Louane ??";
+  const timeTease18Text = "tot! tres bien";
+  const timeTease19Text = "classique !";
+  const timeTease20Text = "j'ai bien le temps de preparé !";
   const houseOptionTauntText = "très original de ma part oui \u{1F60C}";
   const bourbouleSelectionTauntText = "ah merde \u{1F605}";
   const bourbouleStepOneTauntText = "t'est sur ? il neige ce jour \u{1F976}";
@@ -113,8 +124,10 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
   const sadCornerGifEl = document.createElement("img");
   const classicCornerGifEl = document.createElement("img");
   const surprisedCornerGifEl = document.createElement("img");
-  const fatCornerGifEl = document.createElement("img");
   const drunkCornerGifEl = document.createElement("img");
+  const timeCornerGifEl = document.createElement("img");
+  const waterCornerGifEl = document.createElement("img");
+  const cocaCornerGifEl = document.createElement("img");
 
   refuseTauntEl.className = "refuse-taunt";
   refuseTauntEl.setAttribute("aria-hidden", "true");
@@ -150,17 +163,29 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
   surprisedCornerGifEl.setAttribute("aria-hidden", "true");
   cardEl.appendChild(surprisedCornerGifEl);
 
-  fatCornerGifEl.className = "corner-gif corner-gif-fat";
-  fatCornerGifEl.src = "./assets/fat.gif";
-  fatCornerGifEl.alt = "";
-  fatCornerGifEl.setAttribute("aria-hidden", "true");
-  cardEl.appendChild(fatCornerGifEl);
-
   drunkCornerGifEl.className = "corner-gif corner-gif-drunk";
   drunkCornerGifEl.src = "./assets/drunk.gif";
   drunkCornerGifEl.alt = "";
   drunkCornerGifEl.setAttribute("aria-hidden", "true");
   cardEl.appendChild(drunkCornerGifEl);
+
+  timeCornerGifEl.className = "corner-gif corner-gif-time";
+  timeCornerGifEl.src = "./assets/cat-time.gif";
+  timeCornerGifEl.alt = "";
+  timeCornerGifEl.setAttribute("aria-hidden", "true");
+  cardEl.appendChild(timeCornerGifEl);
+
+  waterCornerGifEl.className = "corner-gif corner-gif-water";
+  waterCornerGifEl.src = "./assets/water.gif";
+  waterCornerGifEl.alt = "";
+  waterCornerGifEl.setAttribute("aria-hidden", "true");
+  cardEl.appendChild(waterCornerGifEl);
+
+  cocaCornerGifEl.className = "corner-gif corner-gif-coca";
+  cocaCornerGifEl.src = "./assets/coca.gif";
+  cocaCornerGifEl.alt = "";
+  cocaCornerGifEl.setAttribute("aria-hidden", "true");
+  cardEl.appendChild(cocaCornerGifEl);
 
   function showCornerGif() {
     cornerGifEl.classList.add("is-visible");
@@ -202,14 +227,6 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
     surprisedCornerGifEl.classList.remove("is-visible");
   }
 
-  function showFatCornerGif() {
-    fatCornerGifEl.classList.add("is-visible");
-  }
-
-  function hideFatCornerGif() {
-    fatCornerGifEl.classList.remove("is-visible");
-  }
-
   function showDrunkCornerGif() {
     drunkCornerGifEl.classList.add("is-visible");
   }
@@ -218,12 +235,36 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
     drunkCornerGifEl.classList.remove("is-visible");
   }
 
+  function showTimeCornerGif() {
+    timeCornerGifEl.classList.add("is-visible");
+  }
+
+  function hideTimeCornerGif() {
+    timeCornerGifEl.classList.remove("is-visible");
+  }
+
+  function showWaterCornerGif() {
+    waterCornerGifEl.classList.add("is-visible");
+  }
+
+  function hideWaterCornerGif() {
+    waterCornerGifEl.classList.remove("is-visible");
+  }
+
+  function showCocaCornerGif() {
+    cocaCornerGifEl.classList.add("is-visible");
+  }
+
+  function hideCocaCornerGif() {
+    cocaCornerGifEl.classList.remove("is-visible");
+  }
+
   function showRefuseTaunt(
     x,
     y,
     forceVisible = false,
     tauntText = refuseTauntText,
-    durationMs = 2000
+    durationMs = 3500
   ) {
     if (!isRefuseTauntEnabled && !forceVisible) {
       return;
@@ -368,18 +409,44 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
     hintEl.appendChild(newHint);
   }
 
+  function getReviewAnswerText(quizItem, answerValue) {
+    if (quizItem.type === "text") {
+      if (typeof answerValue === "string" && answerValue.trim()) {
+        return answerValue.trim();
+      }
+      return "Aucune réponse";
+    }
+
+    return quizItem.options[answerValue] || "Aucune réponse";
+  }
+
+  function buildAnswersRecap() {
+    const recapLines = quizQuestions.map((quizItem, index) => {
+      const answerText = getReviewAnswerText(quizItem, answers[index]);
+      return `${index + 1}. ${quizItem.question}\n${answerText}`;
+    });
+
+    return recapLines.join("\n\n");
+  }
+
   function renderQuestion() {
     const currentQuestion = quizQuestions[currentIndex];
     const baseQuestionText = currentQuestion.question;
     isComplete = false;
+    completionStage = "";
     questionEl.classList.remove("is-refuse-hover");
     hideCornerGif();
     hideHappyCornerGif();
     hideSadCornerGif();
     hideClassicCornerGif();
     hideSurprisedCornerGif();
-    hideFatCornerGif();
     hideDrunkCornerGif();
+    hideWaterCornerGif();
+    hideCocaCornerGif();
+    hideTimeCornerGif();
+    if (currentIndex === timeQuestionIndex) {
+      showTimeCornerGif();
+    }
 
     quizStep.textContent = `Question ${currentIndex + 1} / ${quizQuestions.length}`;
     const getPersistentTitleEmoji = () => {
@@ -408,6 +475,7 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
     const isFakeHintReveal =
       currentIndex === fakeQuestionIndex &&
       answers[currentIndex] === fakeQuestionCorrectOptionIndex;
+    const isTextQuestion = currentQuestion.type === "text";
     const restoreHint = () => {
       if (currentIndex === foodQuestionIndex && answers[currentIndex] === pizzaOptionIndex) {
         hintEl.textContent = pizzaHoverHintText;
@@ -417,7 +485,19 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
     };
     restoreHint();
     optionsEl.innerHTML = "";
-    optionsEl.dataset.count = String(currentQuestion.options.length);
+    optionsEl.dataset.count = isTextQuestion ? "1" : String(currentQuestion.options.length);
+
+    if (isTextQuestion) {
+      const textInput = document.createElement("textarea");
+      textInput.className = "text-answer";
+      textInput.rows = 4;
+      textInput.placeholder = currentQuestion.placeholder || "";
+      textInput.value = typeof answers[currentIndex] === "string" ? answers[currentIndex] : "";
+      textInput.addEventListener("input", () => {
+        answers[currentIndex] = textInput.value;
+      });
+      optionsEl.appendChild(textInput);
+    } else {
 
     currentQuestion.options.forEach((optionLabel, optionIndex) => {
       const optionBtn = document.createElement("button");
@@ -595,22 +675,18 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
 
       if (isDessertYesOption) {
         optionBtn.addEventListener("mouseenter", () => {
-          showFatCornerGif();
           questionEl.textContent = `${baseQuestionText} ${dessertAcceptEmoji}`;
         });
 
         optionBtn.addEventListener("mouseleave", () => {
-          hideFatCornerGif();
           resetQuestionTitle();
         });
 
         optionBtn.addEventListener("focus", () => {
-          showFatCornerGif();
           questionEl.textContent = `${baseQuestionText} ${dessertAcceptEmoji}`;
         });
 
         optionBtn.addEventListener("blur", () => {
-          hideFatCornerGif();
           resetQuestionTitle();
         });
       }
@@ -635,41 +711,46 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
 
       if (isWaterOption) {
         optionBtn.addEventListener("mouseenter", () => {
+          showWaterCornerGif();
           questionEl.textContent = `${baseQuestionText} ${waterHoverEmoji}`;
         });
 
         optionBtn.addEventListener("mouseleave", () => {
+          hideWaterCornerGif();
           resetQuestionTitle();
         });
 
         optionBtn.addEventListener("focus", () => {
+          showWaterCornerGif();
           questionEl.textContent = `${baseQuestionText} ${waterHoverEmoji}`;
         });
 
         optionBtn.addEventListener("blur", () => {
+          hideWaterCornerGif();
           resetQuestionTitle();
         });
       }
 
       if (isCocaOption) {
         optionBtn.addEventListener("mouseenter", () => {
-          showClassicCornerGif();
+          showCocaCornerGif();
         });
 
         optionBtn.addEventListener("mouseleave", () => {
-          hideClassicCornerGif();
+          hideCocaCornerGif();
           resetQuestionTitle();
         });
 
         optionBtn.addEventListener("focus", () => {
-          showClassicCornerGif();
+          showCocaCornerGif();
         });
 
         optionBtn.addEventListener("blur", () => {
-          hideClassicCornerGif();
+          hideCocaCornerGif();
           resetQuestionTitle();
         });
       }
+
 
       if (isAlcoholOption) {
         optionBtn.addEventListener("mouseenter", () => {
@@ -694,8 +775,9 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
         hideSadCornerGif();
         hideClassicCornerGif();
         hideSurprisedCornerGif();
-        hideFatCornerGif();
         hideDrunkCornerGif();
+        hideWaterCornerGif();
+        hideCocaCornerGif();
         if (isMogetteOption) {
           return;
         }
@@ -801,6 +883,33 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
               showRefuseTaunt(optionRect.right + 10, optionRect.top + optionRect.height / 2, true, cocaTauntText);
             }
           }
+          if (optionIndex === alcoholOptionIndex) {
+            const hasPointerCoords = event.clientX !== 0 || event.clientY !== 0;
+            if (hasPointerCoords) {
+              showRefuseTaunt(event.clientX + 10, event.clientY - 12, true, alcoholTauntText);
+            } else {
+              const optionRect = optionBtn.getBoundingClientRect();
+              showRefuseTaunt(optionRect.right + 10, optionRect.top + optionRect.height / 2, true, alcoholTauntText);
+            }
+          }
+        }
+
+        if (currentIndex === timeQuestionIndex) {
+          const hasPointerCoords = event.clientX !== 0 || event.clientY !== 0;
+          let timeTauntText = timeTease18Text;
+
+          if (optionIndex === 1) {
+            timeTauntText = timeTease19Text;
+          } else if (optionIndex === 2) {
+            timeTauntText = timeTease20Text;
+          }
+
+          if (hasPointerCoords) {
+            showRefuseTaunt(event.clientX + 10, event.clientY - 12, true, timeTauntText, 5000);
+          } else {
+            const optionRect = optionBtn.getBoundingClientRect();
+            showRefuseTaunt(optionRect.right + 10, optionRect.top + optionRect.height / 2, true, timeTauntText, 5000);
+          }
         }
 
         answers[currentIndex] = optionIndex;
@@ -809,17 +918,65 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
 
       optionsEl.appendChild(optionBtn);
     });
+    }
 
     backBtn.disabled = currentIndex === 0;
-    nextBtn.disabled = answers[currentIndex] === null;
-    nextBtn.textContent = currentIndex === quizQuestions.length - 1 ? "Finish" : "Prochain";
+    nextBtn.disabled = !isTextQuestion && answers[currentIndex] === null;
+    nextBtn.textContent = currentIndex === quizQuestions.length - 1 ? "Terminer" : "Prochain";
   }
 
+
+  function renderBackgroundShareStep() {
+    isComplete = true;
+    completionStage = "backgrounds";
+    quizStep.textContent = "Petite surprise";
+    questionEl.textContent = "Les fonds d'écran en honneur à Vega et Twingssie !";
+    hintEl.textContent = "Tu peux les avoir si tu veux.";
+    optionsEl.innerHTML = "";
+    optionsEl.dataset.count = "1";
+
+    const shareWrap = document.createElement("section");
+    shareWrap.className = "bg-share";
+
+    const downloadGrid = document.createElement("div");
+    downloadGrid.className = "bg-download-grid";
+
+    const pinkCard = document.createElement("article");
+    pinkCard.className = "bg-download-card";
+    const pinkPreview = document.createElement("div");
+    pinkPreview.className = "bg-preview bg-preview-pink";
+    const pinkBtn = document.createElement("a");
+    pinkBtn.className = "nav-btn bg-download-btn";
+    pinkBtn.href = "./assets/bg-pink-neutral.svg";
+    pinkBtn.download = "bg-pink-neutral.svg";
+    pinkBtn.textContent = "Télécharger rose";
+    pinkCard.append(pinkPreview, pinkBtn);
+
+    const blueCard = document.createElement("article");
+    blueCard.className = "bg-download-card";
+    const bluePreview = document.createElement("div");
+    bluePreview.className = "bg-preview bg-preview-blue";
+    const blueBtn = document.createElement("a");
+    blueBtn.className = "nav-btn bg-download-btn";
+    blueBtn.href = "./assets/bg-blue-neutral.svg";
+    blueBtn.download = "bg-blue-neutral.svg";
+    blueBtn.textContent = "Télécharger bleu";
+    blueCard.append(bluePreview, blueBtn);
+
+    downloadGrid.append(pinkCard, blueCard);
+    shareWrap.append(downloadGrid);
+    optionsEl.appendChild(shareWrap);
+
+    backBtn.disabled = false;
+    nextBtn.disabled = false;
+    nextBtn.textContent = "Voir récap";
+  }
   function renderCompletion() {
     isComplete = true;
-    quizStep.textContent = "All done";
-    questionEl.textContent = "You finished the quiz.";
-    hintEl.textContent = "Review your answers below or restart.";
+    completionStage = "recap";
+    quizStep.textContent = "C'est fini !";
+    questionEl.textContent = "Merci pour tes réponses 😌";
+    hintEl.textContent = "Si c'est bon tu peux cliqué sur « Envoyer » pour m'envoyer par mail :)";
     optionsEl.innerHTML = "";
     optionsEl.dataset.count = "1";
 
@@ -833,7 +990,7 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
 
       const reviewAnswer = document.createElement("p");
       reviewAnswer.className = "review-answer";
-      reviewAnswer.textContent = quizItem.options[answers[index]] || "No answer";
+      reviewAnswer.textContent = getReviewAnswerText(quizItem, answers[index]);
 
       reviewItem.append(reviewQuestion, reviewAnswer);
       optionsEl.appendChild(reviewItem);
@@ -841,11 +998,15 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
 
     backBtn.disabled = false;
     nextBtn.disabled = false;
-    nextBtn.textContent = "Restart";
+    nextBtn.textContent = "Envoyer";
   }
 
   backBtn.addEventListener("click", () => {
     if (isComplete) {
+      if (completionStage === "recap") {
+        renderBackgroundShareStep();
+        return;
+      }
       currentIndex = quizQuestions.length - 1;
       renderQuestion();
       return;
@@ -859,17 +1020,20 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
 
   nextBtn.addEventListener("click", (event) => {
     if (isComplete) {
-      answers.fill(null);
-      fakeQuestionDisabledOptions.clear();
-      bourbouleTeaseStep = 0;
-      dessertRefuseTeaseStep = 0;
-      waterTeaseStep = 0;
-      currentIndex = 0;
-      renderQuestion();
+      if (completionStage === "backgrounds") {
+        renderCompletion();
+        return;
+      }
+      const recipient = "runtenick2@icloud.com";
+      const subject = "Récap du quiz Saint-Valentin";
+      const body = buildAnswersRecap();
+      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(recipient)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.open(gmailUrl, "_blank");
       return;
     }
 
-    if (answers[currentIndex] === null) {
+    const isTextQuestion = quizQuestions[currentIndex].type === "text";
+    if (!isTextQuestion && answers[currentIndex] === null) {
       return;
     }
 
@@ -955,15 +1119,26 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
       waterTeaseStep = 0;
     }
 
+    if (currentIndex === timeQuestionIndex) {
+      const hasPointerCoords = event.clientX !== 0 || event.clientY !== 0;
+      const timeTauntText = "c'est noté!";
+      if (hasPointerCoords) {
+        showRefuseTaunt(event.clientX + 10, event.clientY - 12, true, timeTauntText, 5000);
+      } else {
+        const nextRect = nextBtn.getBoundingClientRect();
+        showRefuseTaunt(nextRect.left + nextRect.width / 2, nextRect.top - 12, true, timeTauntText, 5000);
+      }
+    }
+
     if (currentIndex === houseQuestionIndex && answers[currentIndex] === bourbouleOptionIndex) {
       const hasPointerCoords = event.clientX !== 0 || event.clientY !== 0;
       if (bourbouleTeaseStep === 0) {
         bourbouleTeaseStep = 1;
         if (hasPointerCoords) {
-          showRefuseTaunt(event.clientX + 10, event.clientY - 12, true, bourbouleStepOneTauntText, 3000);
+          showRefuseTaunt(event.clientX + 10, event.clientY - 12, true, bourbouleStepOneTauntText, 4000);
         } else {
           const nextRect = nextBtn.getBoundingClientRect();
-          showRefuseTaunt(nextRect.left + nextRect.width / 2, nextRect.top - 12, true, bourbouleStepOneTauntText, 3000);
+          showRefuseTaunt(nextRect.left + nextRect.width / 2, nextRect.top - 12, true, bourbouleStepOneTauntText, 4000);
         }
         renderQuestion();
         return;
@@ -972,20 +1147,20 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
       if (bourbouleTeaseStep === 1) {
         bourbouleTeaseStep = 2;
         if (hasPointerCoords) {
-          showRefuseTaunt(event.clientX + 10, event.clientY - 12, true, bourbouleStepTwoTauntText, 3000);
+          showRefuseTaunt(event.clientX + 10, event.clientY - 12, true, bourbouleStepTwoTauntText, 4000);
         } else {
           const nextRect = nextBtn.getBoundingClientRect();
-          showRefuseTaunt(nextRect.left + nextRect.width / 2, nextRect.top - 12, true, bourbouleStepTwoTauntText, 3000);
+          showRefuseTaunt(nextRect.left + nextRect.width / 2, nextRect.top - 12, true, bourbouleStepTwoTauntText, 4000);
         }
         renderQuestion();
         return;
       }
 
       if (hasPointerCoords) {
-        showRefuseTaunt(event.clientX + 10, event.clientY - 12, true, bourbouleStepThreeTauntText, 3000);
+        showRefuseTaunt(event.clientX + 10, event.clientY - 12, true, bourbouleStepThreeTauntText, 4000);
       } else {
         const nextRect = nextBtn.getBoundingClientRect();
-        showRefuseTaunt(nextRect.left + nextRect.width / 2, nextRect.top - 12, true, bourbouleStepThreeTauntText, 3000);
+        showRefuseTaunt(nextRect.left + nextRect.width / 2, nextRect.top - 12, true, bourbouleStepThreeTauntText, 4000);
       }
       bourbouleTeaseStep = 0;
     }
@@ -996,8 +1171,9 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
       return;
     }
 
-    renderCompletion();
+    renderBackgroundShareStep();
   });
 
   renderQuestion();
 }
+
