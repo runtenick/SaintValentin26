@@ -28,6 +28,7 @@ html, body {
 
 .card{
   --card-scale: 1;
+  position: relative;
   width: min(560px, 100%);
   padding: clamp(18px, 4vw, 30px);
   border-radius: 20px;
@@ -77,6 +78,16 @@ html, body {
   color: #355171;
 }
 
+.hint-original.is-obsolete {
+  text-decoration: line-through;
+  opacity: 0.62;
+}
+
+.hint-reveal {
+  font-weight: 700;
+  color: #224f7a;
+}
+
 h1,
 h2,
 h3 {
@@ -119,6 +130,58 @@ h3 {
   border-color: #6aa9e6;
   background: #eef6ff;
   box-shadow: 0 8px 16px rgba(34, 95, 158, 0.14);
+}
+.option.is-fake-disabled,
+.option:disabled {
+  border-color: #cbd5e2;
+  background: #f3f6fa;
+  color: #7a889c;
+  box-shadow: none;
+  transform: none;
+  cursor: not-allowed;
+  opacity: 1;
+}
+.corner-gif {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  width: clamp(58px, 10vw, 86px);
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.corner-gif.is-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.corner-gif-sad {
+  top: -8px;
+  right: 0px;
+}
+
+.corner-gif-classic {
+  top: 8px;
+  right: 0px;
+}
+
+.corner-gif-surprised {
+  top: 10px;
+  right: 6px;
+}
+
+.corner-gif-fat {
+  top: 10px;
+  right: 6px;
+}
+
+.corner-gif-drunk {
+  top: 10px;
+  right: 6px;
 }
 
 .refuse-taunt {
