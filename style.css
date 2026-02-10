@@ -38,6 +38,13 @@ html, body {
   backdrop-filter: blur(4px);
 }
 
+@media (min-width: 1024px) {
+  .card {
+    width: min(740px, 100%);
+    padding: 34px 38px;
+  }
+}
+
 .question{
   font-size: clamp(20px, 2.2vw, 28px);
   line-height: 1.2;
@@ -213,11 +220,4 @@ h3 {
 .nav-btn-next:hover:not(:disabled) {
   border-color: #255a90;
   background: #255a90;
-}
-
-@media (min-width: 640px) {
-  .options[data-count="3"],
-  .options[data-count="4"] {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }

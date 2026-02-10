@@ -1,22 +1,41 @@
 const quizQuestions = [
   {
-    question: "Saint Valentin ?",
-    hint: "Pick one option only.",
+    question: "Saint Valentin ? 💌",
+    hint: "(bonne chance si jamais tu veux refuser...)",
     options: [
       "J'accepte ! 😻",
       "Je refuse ! 😿",
     ],
   },
   {
-    question: "Which cat vibe matches you today?",
-    hint: "No wrong answer, only cat energy.",
-    options: ["Sleepy loaf", "Elegant princess", "Chaotic gremlin"],
+    question: "Tu préfères...",
+    hint: "(Désolé, il faut prendre une décision ! 😬)",
+    options: ["📽️🍝 Film / Resto", "🗝️ Escape Game", "🎞️🃏 Marathon Serie / Jeux Société"],
   },
   {
-    question: "Best date idea for us?",
-    hint: "Choose the one you want most.",
-    options: ["Movie night at home", "Cat cafe and city walk", "Cozy dinner together"],
+    question: "On fait ça ou ?",
+    options: ["🧚‍♂️ Au sommet de la roche des fées !", "🏠 Chez moi comme d'hab", "🏠 Comme d'hab chez moi"],
   },
+  {
+    question: "Qu'est ce qu'on mange ?",
+    hint: "Un choix important... (mais pas de pression)",
+    options: ["🍕 Pizza (j'aurais faim)", "🥀😪 Mogette... (pas trouvé )", "🍿 Pop Corn ça me suffit"],
+  },
+  {
+    question: "Un dessert brésilien *fait maison* ?",
+    hint: "👀...🍫...",
+    options: ["Oui ! Pour l'amour de dieu 😌", "Non, j'ai perdu mes neurones (🤨)"],
+  },
+  {
+    question: "Boisson ?",
+    hint: "(Chacun ses goûts... 😅)",
+    options: ["De l'eau (🤩)", "Du coca (🤢)", "De l'alcool (😮)"],
+  },
+  {
+    question: "Heure d'arrivée ?",
+    hint: "🕰️",
+    options: ["18h", "19h", "20h", "21h"],
+  }
 ];
 
 const quizStep = document.getElementById("quiz-step");
