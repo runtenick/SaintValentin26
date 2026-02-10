@@ -27,7 +27,7 @@ html, body {
 }
 
 .card{
-  --card-scale: 1.12;
+  --card-scale: 1;
   width: min(560px, 100%);
   padding: clamp(18px, 4vw, 30px);
   border-radius: 20px;

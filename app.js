@@ -13,7 +13,7 @@ const quizQuestions = [
     options: ["📽️🍝 Film / Resto", "🗝️ Escape Game", "🎞️🃏 Marathon Serie / Jeux Société"],
   },
   {
-    question: "On fait ça ou ?",
+    question: "Où se passe la soirée ?",
     options: ["🧚‍♂️ Au sommet de la roche des fées !", "🏠 Chez moi comme d'hab", "🏠 Comme d'hab chez moi"],
   },
   {
