@@ -9,6 +9,7 @@ body {
   background-image: url("./assets/bg-blue-neutral.png");
   background-repeat: repeat;
   background-size: clamp(420px, 30vw, 620px);
+  background-position: center top;
   font-family: "Mulish", sans-serif;
   color: #1f2a44;
 }
@@ -43,6 +44,10 @@ html, body {
   margin: 0 0 12px;
 }
 
+.question.is-refuse-hover::after {
+  content: " 🤨";
+}
+
 .quiz-step {
   margin: 0 0 10px;
   font-size: 13px;
@@ -50,6 +55,10 @@ html, body {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #4574a8;
+}
+
+.question.is-refuse-hover::after {
+  content: "";
 }
 
 .hint {
@@ -66,6 +75,12 @@ h3 {
 .options{
   display: grid;
   gap: 12px;
+}
+
+.options[data-count="2"],
+.options[data-count="3"],
+.options[data-count="4"] {
+  grid-template-columns: 1fr;
 }
 
 .option{
@@ -93,6 +108,67 @@ h3 {
   border-color: #6aa9e6;
   background: #eef6ff;
   box-shadow: 0 8px 16px rgba(34, 95, 158, 0.14);
+}
+
+.refuse-taunt {
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%) scale(0.92);
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid #ffbe6e;
+  background: #fff7d6;
+  color: #8a3a00;
+  font-family: "Quicksand", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 10px 20px rgba(138, 58, 0, 0.18);
+  pointer-events: none;
+  opacity: 0;
+}
+
+.refuse-taunt.is-visible {
+  animation: refuse-taunt-rise 1s ease forwards;
+}
+
+@keyframes refuse-taunt-rise {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.92);
+  }
+  16% {
+    opacity: 1;
+    transform: translate(-50%, -62%) scale(1);
+  }
+  72% {
+    opacity: 1;
+    transform: translate(-50%, -84%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -96%) scale(0.98);
+  }
+}
+
+.review-item {
+  border: 1px solid #d6e7fb;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.review-question {
+  margin: 0 0 6px;
+  font-size: 15px;
+  color: #24486e;
+}
+
+.review-answer {
+  margin: 0;
+  color: #325377;
+  font-weight: 700;
 }
 
 .actions {
@@ -137,4 +213,11 @@ h3 {
 .nav-btn-next:hover:not(:disabled) {
   border-color: #255a90;
   background: #255a90;
+}
+
+@media (min-width: 640px) {
+  .options[data-count="3"],
+  .options[data-count="4"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

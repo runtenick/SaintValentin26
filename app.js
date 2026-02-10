@@ -1,102 +1,218 @@
-const tileBg = document.getElementById("tile-bg");
+const quizQuestions = [
+  {
+    question: "Saint Valentin ?",
+    hint: "Pick one option only.",
+    options: [
+      "J'accepte ! 😻",
+      "Je refuse ! 😿",
+    ],
+  },
+  {
+    question: "Which cat vibe matches you today?",
+    hint: "No wrong answer, only cat energy.",
+    options: ["Sleepy loaf", "Elegant princess", "Chaotic gremlin"],
+  },
+  {
+    question: "Best date idea for us?",
+    hint: "Choose the one you want most.",
+    options: ["Movie night at home", "Cat cafe and city walk", "Cozy dinner together"],
+  },
+];
 
-if (tileBg) {
-  const mediaReduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+const quizStep = document.getElementById("quiz-step");
+const questionEl = document.getElementById("question");
+const hintEl = document.getElementById("hint");
+const optionsEl = document.getElementById("options");
+const backBtn = document.getElementById("back-btn");
+const nextBtn = document.getElementById("next-btn");
 
-  let tiles = [];
-  let sequence = [];
-  let stepIndex = 0;
-  let targetColor = "pink";
-  let intervalId = null;
-  let tileColor = "blue";
+if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn) {
+  const answers = Array(quizQuestions.length).fill(null);
+  let currentIndex = 0;
+  let isComplete = false;
+  const refuseLabels = new Set(["i refuse", "je refuse", "no", "non"]);
+  const acceptLabel = "J'accepte ! 😻";
+  const refuseLabel = "Je refuse ! 😿";
+  const refuseHoverEmoji = "\u{1F928}";
+  const refuseTauntText = "oops, dommage !"; // \u{1F602}
+  const isRefuseTauntEnabled = false;
+  let refuseTauntTimer = null;
+  const refuseTauntEl = document.createElement("div");
 
-  const clamp = (value, min, max) => Math.max(min, Math.min(value, max));
+  refuseTauntEl.className = "refuse-taunt";
+  refuseTauntEl.setAttribute("aria-hidden", "true");
+  document.body.appendChild(refuseTauntEl);
 
-  function getTileSize() {
-    return Math.round(clamp(window.innerWidth * 0.24, 220, 380));
-  }
-
-  function buildSequence(count) {
-    sequence = Array.from({ length: count }, (_, i) => i);
-    for (let i = count - 1; i > 0; i -= 1) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [sequence[i], sequence[j]] = [sequence[j], sequence[i]];
-    }
-    stepIndex = 0;
-  }
-
-  function setTileColor(tile, color) {
-    tile.classList.remove("is-blue", "is-pink");
-    tile.classList.add(color === "blue" ? "is-blue" : "is-pink");
-  }
-
-  function buildGrid() {
-    const tileSize = getTileSize();
-    const cols = Math.ceil(window.innerWidth / tileSize) + 1;
-    const rows = Math.ceil(window.innerHeight / tileSize) + 1;
-
-    tileBg.style.setProperty("--tile-size", `${tileSize}px`);
-    tileBg.style.setProperty("--tile-cols", String(cols));
-    tileBg.style.setProperty("--tile-rows", String(rows));
-
-    const total = cols * rows;
-    tileBg.innerHTML = "";
-    tiles = [];
-
-    for (let i = 0; i < total; i += 1) {
-      const tile = document.createElement("div");
-      tile.className = "tile";
-      setTileColor(tile, tileColor);
-      tileBg.appendChild(tile);
-      tiles.push(tile);
-    }
-
-    buildSequence(total);
-  }
-
-  function tick() {
-    if (tiles.length === 0) {
+  function showRefuseTaunt(x, y) {
+    if (!isRefuseTauntEnabled) {
       return;
     }
 
-    if (stepIndex >= sequence.length) {
-      tileColor = targetColor;
-      targetColor = tileColor === "blue" ? "pink" : "blue";
-      buildSequence(sequence.length);
+    if (!Number.isFinite(x) || !Number.isFinite(y)) {
       return;
     }
 
-    const tile = tiles[sequence[stepIndex]];
-    setTileColor(tile, targetColor);
-    stepIndex += 1;
+    if (refuseTauntTimer) {
+      clearTimeout(refuseTauntTimer);
+    }
+
+    refuseTauntEl.textContent = refuseTauntText;
+    refuseTauntEl.style.left = `${x}px`;
+    refuseTauntEl.style.top = `${y}px`;
+    refuseTauntEl.classList.remove("is-visible");
+    void refuseTauntEl.offsetWidth;
+    refuseTauntEl.classList.add("is-visible");
+
+    refuseTauntTimer = setTimeout(() => {
+      refuseTauntEl.classList.remove("is-visible");
+      refuseTauntTimer = null;
+    }, 2000);
   }
 
-  function start() {
-    if (mediaReduce.matches) {
-      tileBg.innerHTML = "";
+  function normalizeOptionLabel(label) {
+    return label
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z\s]/g, "")
+      .trim()
+      .toLowerCase();
+  }
+
+  function renderQuestion() {
+    const currentQuestion = quizQuestions[currentIndex];
+    const baseQuestionText = currentQuestion.question;
+    isComplete = false;
+    questionEl.classList.remove("is-refuse-hover");
+
+    quizStep.textContent = `Question ${currentIndex + 1} / ${quizQuestions.length}`;
+    questionEl.textContent = baseQuestionText;
+    hintEl.textContent = currentQuestion.hint || "";
+    optionsEl.innerHTML = "";
+    optionsEl.dataset.count = String(currentQuestion.options.length);
+
+    currentQuestion.options.forEach((optionLabel, optionIndex) => {
+      const optionBtn = document.createElement("button");
+      optionBtn.type = "button";
+      optionBtn.className = "option";
+      optionBtn.textContent = optionLabel;
+      const normalized = normalizeOptionLabel(optionLabel);
+      const isRefuseOption = currentIndex === 0 && refuseLabels.has(normalized);
+
+      const isSelected = answers[currentIndex] === optionIndex;
+      optionBtn.classList.toggle("is-selected", isSelected);
+      optionBtn.setAttribute("aria-selected", String(isSelected));
+
+      if (isRefuseOption) {
+        optionBtn.addEventListener("mouseenter", (event) => {
+          questionEl.classList.add("is-refuse-hover");
+          questionEl.textContent = `${baseQuestionText} ${refuseHoverEmoji}`;
+        });
+
+        optionBtn.addEventListener("mouseleave", () => {
+          questionEl.classList.remove("is-refuse-hover");
+          questionEl.textContent = baseQuestionText;
+        });
+
+        optionBtn.addEventListener("focus", () => {
+          questionEl.classList.add("is-refuse-hover");
+          questionEl.textContent = `${baseQuestionText} ${refuseHoverEmoji}`;
+        });
+
+        optionBtn.addEventListener("blur", () => {
+          questionEl.classList.remove("is-refuse-hover");
+          questionEl.textContent = baseQuestionText;
+        });
+      }
+
+      optionBtn.addEventListener("click", (event) => {
+        if (currentIndex === 0 && refuseLabels.has(normalized)) {
+          const hasPointerCoords = event.clientX !== 0 || event.clientY !== 0;
+          if (hasPointerCoords) {
+            showRefuseTaunt(event.clientX + 10, event.clientY - 12);
+          } else {
+            const optionRect = optionBtn.getBoundingClientRect();
+            showRefuseTaunt(optionRect.right + 10, optionRect.top + optionRect.height / 2);
+          }
+
+          quizQuestions[0].options = quizQuestions[0].options.map((_, idx) =>
+            idx === optionIndex ? acceptLabel : refuseLabel
+          );
+        }
+
+        answers[currentIndex] = optionIndex;
+        renderQuestion();
+      });
+
+      optionsEl.appendChild(optionBtn);
+    });
+
+    backBtn.disabled = currentIndex === 0;
+    nextBtn.disabled = answers[currentIndex] === null;
+    nextBtn.textContent = currentIndex === quizQuestions.length - 1 ? "Finish" : "Next";
+  }
+
+  function renderCompletion() {
+    isComplete = true;
+    quizStep.textContent = "All done";
+    questionEl.textContent = "You finished the quiz.";
+    hintEl.textContent = "Review your answers below or restart.";
+    optionsEl.innerHTML = "";
+    optionsEl.dataset.count = "1";
+
+    quizQuestions.forEach((quizItem, index) => {
+      const reviewItem = document.createElement("article");
+      reviewItem.className = "review-item";
+
+      const reviewQuestion = document.createElement("h3");
+      reviewQuestion.className = "review-question";
+      reviewQuestion.textContent = `${index + 1}. ${quizItem.question}`;
+
+      const reviewAnswer = document.createElement("p");
+      reviewAnswer.className = "review-answer";
+      reviewAnswer.textContent = quizItem.options[answers[index]] || "No answer";
+
+      reviewItem.append(reviewQuestion, reviewAnswer);
+      optionsEl.appendChild(reviewItem);
+    });
+
+    backBtn.disabled = false;
+    nextBtn.disabled = false;
+    nextBtn.textContent = "Restart";
+  }
+
+  backBtn.addEventListener("click", () => {
+    if (isComplete) {
+      currentIndex = quizQuestions.length - 1;
+      renderQuestion();
       return;
     }
 
-    buildGrid();
-    clearInterval(intervalId);
-    intervalId = window.setInterval(tick, 140);
-  }
-
-  function stop() {
-    clearInterval(intervalId);
-    intervalId = null;
-  }
-
-  window.addEventListener("resize", () => {
-    if (!mediaReduce.matches) {
-      buildGrid();
+    if (currentIndex > 0) {
+      currentIndex -= 1;
+      renderQuestion();
     }
   });
 
-  mediaReduce.addEventListener("change", () => {
-    stop();
-    start();
+  nextBtn.addEventListener("click", () => {
+    if (isComplete) {
+      answers.fill(null);
+      currentIndex = 0;
+      renderQuestion();
+      return;
+    }
+
+    if (answers[currentIndex] === null) {
+      return;
+    }
+
+    if (currentIndex < quizQuestions.length - 1) {
+      currentIndex += 1;
+      renderQuestion();
+      return;
+    }
+
+    renderCompletion();
   });
 
-  start();
+  renderQuestion();
 }
