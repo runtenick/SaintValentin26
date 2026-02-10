@@ -5,13 +5,10 @@
 }
 
 body {
+  background-image: url("./assets/bg-blue-neutral.png");
   background-repeat: repeat;
-  background-size: clamp(420px, 32vw, 620px);
-
-  background-image: image-set(
-    url("./assets/bg-tile-neutral@2x.webp") type("image/webp"),
-    url("./assets/bg-tile-neutral@2x.png") type("image/png")
-  );
+  background-size: clamp(420px, 30vw, 620px);
+  animation: tile-swap 3s steps(1, end) infinite;
 }
 
 html, body {
@@ -57,4 +54,19 @@ html, body {
 
 .option:hover {
   transform: translateY(-1px);
+}
+
+@keyframes tile-swap {
+  0%, 49.999% {
+    background-image: url("./assets/bg-blue-neutral.png");
+  }
+  50%, 100% {
+    background-image: url("./assets/bg-pink-neutral.png");
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    animation: none;
+  }
 }
