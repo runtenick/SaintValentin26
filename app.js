@@ -52,6 +52,13 @@ const nextBtn = document.getElementById("next-btn");
 const cardEl = document.querySelector(".card");
 
 if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardEl) {
+  const confettiLayerEl = document.createElement("div");
+  let confettiTimer = null;
+
+  confettiLayerEl.className = "confetti-layer";
+  confettiLayerEl.setAttribute("aria-hidden", "true");
+  cardEl.appendChild(confettiLayerEl);
+
   const answers = Array(quizQuestions.length).fill(null);
   let currentIndex = 0;
   let isComplete = false;
@@ -60,8 +67,10 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
   const fakeQuestionCorrectOptionIndex = 2;
   const fakeQuestionDisabledOptions = new Set();
   const houseQuestionIndex = 2;
+  const houseFirstOptionIndex = 0;
+  const houseSecondOptionIndex = 1;
   const bourbouleOptionIndex = 2;
-  const houseOptionIndexes = new Set([0, 1]);
+  const houseOptionIndexes = new Set([houseFirstOptionIndex, houseSecondOptionIndex]);
   const foodQuestionIndex = 3;
   const pizzaOptionIndex = 0;
   const mogetteOptionIndex = 1;
@@ -97,7 +106,8 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
   const timeTease18Text = "tot! tres bien";
   const timeTease19Text = "classique !";
   const timeTease20Text = "j'ai bien le temps de preparé !";
-  const houseOptionTauntText = "très original de ma part oui \u{1F60C}";
+  const houseFirstOptionTauntText = "j'abuse...";
+  const houseSecondOptionTauntText = "original, je sais...";
   const bourbouleSelectionTauntText = "ah merde \u{1F605}";
   const bourbouleStepOneTauntText = "t'est sur ? il neige ce jour \u{1F976}";
   const bourbouleStepTwoTauntText = "on part a la bourboule ?";
@@ -114,10 +124,16 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
   const refuseHoverEmoji = "\u{1F928}";
   const refuseTauntText = "oops dommage"; // \u{1F602}
   const isRefuseTauntEnabled = false;
+  const textEasterEggs = [
+    { word: "rien", taunt: "rien ? quand même !" },
+    { word: "chat", taunt: "miau" },
+    { word: "chocolat", taunt: "vive le sucre !" }
+  ];
   let bourbouleTeaseStep = 0;
   let dessertRefuseTeaseStep = 0;
   let waterTeaseStep = 0;
   let refuseTauntTimer = null;
+  let triggeredTextEggs = new Set();
   const refuseTauntEl = document.createElement("div");
   const cornerGifEl = document.createElement("img");
   const happyCornerGifEl = document.createElement("img");
@@ -382,6 +398,60 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
       .toLowerCase();
   }
 
+  function updateTextEasterEggs(textValue, anchorEl) {
+    const normalizedText = normalizeOptionLabel(textValue);
+
+    textEasterEggs.forEach(({ word, taunt }) => {
+      const wordRegex = new RegExp(`\\b${word}\\b`);
+      const hasWord = wordRegex.test(normalizedText);
+      const wasTriggered = triggeredTextEggs.has(word);
+
+      if (!hasWord && wasTriggered) {
+        triggeredTextEggs.delete(word);
+        return;
+      }
+
+      if (!hasWord || wasTriggered || !anchorEl) {
+        return;
+      }
+
+      const rect = anchorEl.getBoundingClientRect();
+      showRefuseTaunt(rect.right - 24, rect.top + 8, true, taunt, 3500);
+      triggeredTextEggs.add(word);
+    });
+  }
+
+  function showCompletionConfetti() {
+    if (confettiLayerEl.classList.contains("is-active")) {
+      return;
+    }
+
+    if (confettiTimer) {
+      clearTimeout(confettiTimer);
+      confettiTimer = null;
+    }
+
+    confettiLayerEl.innerHTML = "";
+    const pieceCount = 46;
+    for (let i = 0; i < pieceCount; i += 1) {
+      const pieceEl = document.createElement("span");
+      pieceEl.className = "confetti-piece";
+      pieceEl.style.left = `${Math.random() * 100}%`;
+      pieceEl.style.setProperty("--drift", `${Math.random() * 90 - 45}px`);
+      pieceEl.style.setProperty("--fall-duration", `${3600 + Math.random() * 2200}ms`);
+      pieceEl.style.setProperty("--delay", `${Math.random() * 120}ms`);
+      pieceEl.style.setProperty("--hue", `${Math.floor(Math.random() * 360)}`);
+      confettiLayerEl.appendChild(pieceEl);
+    }
+
+    confettiLayerEl.classList.add("is-active");
+    confettiTimer = setTimeout(() => {
+      confettiLayerEl.classList.remove("is-active");
+      confettiLayerEl.innerHTML = "";
+      confettiTimer = null;
+    }, 6200);
+  }
+
   function setHint(baseHint, isFakeHintReveal) {
     if (!baseHint && !isFakeHintReveal) {
       hintEl.textContent = "";
@@ -434,6 +504,8 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
     const baseQuestionText = currentQuestion.question;
     isComplete = false;
     completionStage = "";
+    cardEl.classList.remove("is-recap-mode");
+    cardEl.classList.remove("is-bg-share-mode");
     questionEl.classList.remove("is-refuse-hover");
     hideCornerGif();
     hideHappyCornerGif();
@@ -493,8 +565,11 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
       textInput.rows = 4;
       textInput.placeholder = currentQuestion.placeholder || "";
       textInput.value = typeof answers[currentIndex] === "string" ? answers[currentIndex] : "";
+      triggeredTextEggs = new Set();
+      updateTextEasterEggs(textInput.value, textInput);
       textInput.addEventListener("input", () => {
         answers[currentIndex] = textInput.value;
+        updateTextEasterEggs(textInput.value, textInput);
       });
       optionsEl.appendChild(textInput);
     } else {
@@ -835,12 +910,14 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
             }
           } else {
             bourbouleTeaseStep = 0;
+            const houseTauntText =
+              optionIndex === houseFirstOptionIndex ? houseFirstOptionTauntText : houseSecondOptionTauntText;
             const hasPointerCoords = event.clientX !== 0 || event.clientY !== 0;
             if (hasPointerCoords) {
-              showRefuseTaunt(event.clientX + 10, event.clientY - 12, true, houseOptionTauntText, 5000);
+              showRefuseTaunt(event.clientX + 10, event.clientY - 12, true, houseTauntText, 5000);
             } else {
               const optionRect = optionBtn.getBoundingClientRect();
-              showRefuseTaunt(optionRect.right + 10, optionRect.top + optionRect.height / 2, true, houseOptionTauntText, 5000);
+              showRefuseTaunt(optionRect.right + 10, optionRect.top + optionRect.height / 2, true, houseTauntText, 5000);
             }
           }
         }
@@ -929,6 +1006,8 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
   function renderBackgroundShareStep() {
     isComplete = true;
     completionStage = "backgrounds";
+    cardEl.classList.remove("is-recap-mode");
+    cardEl.classList.add("is-bg-share-mode");
     quizStep.textContent = "Petite surprise";
     questionEl.textContent = "Les fonds d'écran en honneur à Vega et Twingssie !";
     hintEl.textContent = "Tu peux les avoir si tu veux.";
@@ -974,6 +1053,9 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
   function renderCompletion() {
     isComplete = true;
     completionStage = "recap";
+    cardEl.classList.add("is-recap-mode");
+    cardEl.classList.remove("is-bg-share-mode");
+    showCompletionConfetti();
     quizStep.textContent = "C'est fini !";
     questionEl.textContent = "Merci pour tes réponses 😌";
     hintEl.textContent = "Si c'est bon tu peux cliqué sur « Envoyer » pour m'envoyer par mail :)";
@@ -1021,6 +1103,7 @@ if (quizStep && questionEl && hintEl && optionsEl && backBtn && nextBtn && cardE
   nextBtn.addEventListener("click", (event) => {
     if (isComplete) {
       if (completionStage === "backgrounds") {
+        showCompletionConfetti();
         renderCompletion();
         return;
       }
