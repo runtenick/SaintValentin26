@@ -4,17 +4,31 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Saint-Valentin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;600;700&family=Quicksand:wght@600;700&display=swap"
+    rel="stylesheet"
+  />
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
   <main class="page">
-    <section class="card">
-      <h1 class="question">Teste fundo</h1>
-      <p class="hint">Voce ve gatinhos ai atras ?</p>
+    <section class="card" aria-live="polite">
+      <p class="quiz-step" id="quiz-step">Question 1 of 8</p>
+      <h1 class="question" id="question">What is your favorite cat activity?</h1>
+      <p class="hint" id="hint">Pick one option only.</p>
 
-      <div class="options">
-        <button class="option"> A</button>
-        <button class="option"> B</button>
+      <div class="options" id="options" role="listbox" aria-label="Quiz options">
+        <button class="option is-selected" type="button">Napping in the sun</button>
+        <button class="option" type="button">Watching birds from the window</button>
+        <button class="option" type="button">Stealing snacks in the kitchen</button>
+        <button class="option" type="button">Zoomies at 3 AM</button>
+      </div>
+
+      <div class="actions">
+        <button class="nav-btn nav-btn-back" id="back-btn" type="button" disabled>Back</button>
+        <button class="nav-btn nav-btn-next" id="next-btn" type="button">Next</button>
       </div>
     </section>
   </main>
